@@ -45,57 +45,59 @@ show_main_menu() {
     echo ""
     echo "☁️  Cloud & Backup:"
     echo "7)  ☁️  Install AWS CLI"
+    echo "8)  🔐 Verify AWS Credentials"
+    echo "9)  📁 List S3 Backup Files"
     echo ""
     echo "📦 Service Management:"
-    echo "8)  🏠 Setup Localhost (No Browser Warnings)"
-    echo "9)  🌐 Setup Production (Let's Encrypt)"
-    echo "10) 🎯 Deploy Individual Service"
-    echo "11) ▶️  Start All Services"
-    echo "12) 🛑 Stop All Services"
-    echo "13) 🔄 Restart All Services"
-    echo "14) 📊 Check Service Status"
-    echo "15) 📋 View Service Logs"
+    echo "10) 🏠 Setup Localhost (No Browser Warnings)"
+    echo "11) 🌐 Setup Production (Let's Encrypt)"
+    echo "12) 🎯 Deploy Individual Service"
+    echo "13) ▶️  Start All Services"
+    echo "14) 🛑 Stop All Services"
+    echo "15) 🔄 Restart All Services"
+    echo "16) 📊 Check Service Status"
+    echo "17) 📋 View Service Logs"
     echo ""
     echo "🔧 System Management:"
-    echo "16) 📊 System Overview"
-    echo "17) 💾 Memory Usage"
-    echo "18) 🖥️  CPU Usage"
-    echo "19) 💿 Disk Usage"
+    echo "18) 📊 System Overview"
+    echo "19) 💾 Memory Usage"
+    echo "20) 🖥️  CPU Usage"
+    echo "21) 💿 Disk Usage"
     echo ""
     echo "🗄️  Backup & Restore:"
-    echo "20) 📊 Backup All Databases"
-    echo "21) 🐘 Backup MySQL Only"
-    echo "22) 🐘 Backup PostgreSQL Only"
-    echo "23) 🔴 Backup Redis Only"
-    echo "24) 📊 Backup ClickHouse Only"
-    echo "25) 🔄 Restore Database"
-    echo "26) 📋 List Available Backups"
-    echo "27) ⏰ Setup Automated Backups (Cron)"
-    echo "28) 🧪 Test Backup System"
-    echo "29) 📊 Backup Status & Info"
-    echo "30) 🧹 Cleanup Old Backups"
-    echo "31) 🗑️  Remove Automated Backups"
-    echo "32) ⏰ Setup Cleanup Cron (Local & S3)"
+    echo "22) 📊 Backup All Databases"
+    echo "23) 🐘 Backup MySQL Only"
+    echo "24) 🐘 Backup PostgreSQL Only"
+    echo "25) 🔴 Backup Redis Only"
+    echo "26) 📊 Backup ClickHouse Only"
+    echo "27) 🔄 Restore Database"
+    echo "28) 📋 List Available Backups"
+    echo "29) ⏰ Setup Automated Backups (Cron)"
+    echo "30) 🧪 Test Backup System"
+    echo "31) 📊 Backup Status & Info"
+    echo "32) 🧹 Cleanup Old Backups"
+    echo "33) 🗑️  Remove Automated Backups"
+    echo "34) ⏰ Setup Cleanup Cron (Local & S3)"
     echo ""
     echo "🔐 SSL & Security:"
-    echo "33) 🔧 Setup mkcert SSL (No Browser Warnings)"
-    echo "34) 🔍 Check SSL Certificates"
-    echo "35) 🔥 Firewall Status"
+    echo "35) 🔧 Setup mkcert SSL (No Browser Warnings)"
+    echo "36) 🔍 Check SSL Certificates"
+    echo "37) 🔥 Firewall Status"
     echo ""
     echo "⏰ Cron Management:"
-    echo "36) 📋 List All Cron Jobs"
-    echo "37) 💾 Save Cron Jobs to File"
-    echo "38) 📥 Restore Cron Jobs from File"
-    echo "39) 🗑️  Remove All Cron Jobs"
-    echo "40) 🧹 Remove Backup Cron Jobs Only"
-    echo "41) 🔧 Edit Cron Jobs Manually"
-    echo "42) 📄 View Cron Logs"
-    echo "43) 🗑️  Remove Cron Logs"
-    echo "44) 🧹 Clean Old Cron Logs"
+    echo "38) 📋 List All Cron Jobs"
+    echo "39) 💾 Save Cron Jobs to File"
+    echo "40) 📥 Restore Cron Jobs from File"
+    echo "41) 🗑️  Remove All Cron Jobs"
+    echo "42) 🧹 Remove Backup Cron Jobs Only"
+    echo "43) 🔧 Edit Cron Jobs Manually"
+    echo "44) 📄 View Cron Logs"
+    echo "45) 🗑️  Remove Cron Logs"
+    echo "46) 🧹 Clean Old Cron Logs"
     echo ""
     echo "❓ Help & Exit:"
-    echo "45) ❓ Help"
-    echo "46) 🚪 Exit"
+    echo "47) ❓ Help"
+    echo "48) 🚪 Exit"
     echo ""
 }
 
@@ -203,6 +205,86 @@ show_service_urls() {
     fi
 }
 
+# Verify AWS credentials
+verify_aws_credentials() {
+    echo "🔐 Verifying AWS Credentials"
+    echo "============================"
+    echo ""
+    
+    if [ "$S3_BACKUP_ENABLED" != "true" ]; then
+        echo "❌ S3 backup not enabled in .env"
+        return 0
+    fi
+    
+    if ! command -v aws >/dev/null 2>&1; then
+        echo "❌ AWS CLI not installed"
+        return 0
+    fi
+    
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
+    
+    echo "Using AWS credentials from .env:"
+    echo "  • Access Key ID: ${S3_ACCESS_KEY_ID:0:8}..."
+    echo "  • Region: ${S3_REGION}"
+    echo "  • Bucket: ${S3_BUCKET_NAME}"
+    if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
+        echo "  • Endpoint: ${S3_ENDPOINT_URL}"
+    fi
+    echo ""
+    
+    echo "Testing AWS credentials..."
+    if aws sts get-caller-identity >/dev/null 2>&1; then
+        echo "✅ AWS credentials are valid!"
+        echo ""
+        echo "Account information:"
+        aws sts get-caller-identity
+    else
+        echo "❌ AWS credentials are invalid or expired"
+        echo "Please check your S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY in .env"
+    fi
+}
+
+# List S3 backup files
+list_s3_backup_files() {
+    echo "📁 Listing S3 Backup Files"
+    echo "=========================="
+    echo ""
+    
+    if [ "$S3_BACKUP_ENABLED" != "true" ]; then
+        echo "❌ S3 backup not enabled in .env"
+        return 0
+    fi
+    
+    if ! command -v aws >/dev/null 2>&1; then
+        echo "❌ AWS CLI not installed"
+        return 0
+    fi
+    
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
+    
+    echo "S3 Bucket: ${S3_BUCKET_NAME}"
+    echo "Region: ${S3_REGION}"
+    if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
+        echo "Endpoint: ${S3_ENDPOINT_URL}"
+    fi
+    echo ""
+    
+    echo "📂 Backup folder structure:"
+    echo "=========================="
+    
+    if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
+        aws s3 ls "s3://${S3_BUCKET_NAME}/backups/" --region "${S3_REGION}" --endpoint-url "${S3_ENDPOINT_URL}" --recursive --human-readable
+    else
+        aws s3 ls "s3://${S3_BUCKET_NAME}/backups/" --region "${S3_REGION}" --recursive --human-readable
+    fi
+}
+
 # Show help
 show_help() {
     echo "❓ Infrastructure CLI Help"
@@ -215,6 +297,11 @@ show_help() {
     echo "  • Manage Docker users and permissions"
     echo "  • Check Docker installation and status"
     echo "  • List Docker services and containers"
+    echo ""
+    echo "☁️  Cloud & Backup:"
+    echo "  • Install AWS CLI"
+    echo "  • Verify AWS credentials"
+    echo "  • List S3 backup files"
     echo ""
     echo "📦 Service Management:"
     echo "  • Deploy services for localhost, production, or development"
@@ -248,12 +335,13 @@ show_help() {
     echo ""
     echo "📋 All Available Options:"
     echo "  Docker Management: 1-6"
-    echo "  Service Management: 7-14"
-    echo "  System Management: 15-18"
-    echo "  Backup & Restore: 19-31"
-    echo "  SSL & Security: 32-34"
-    echo "  Cron Management: 35-43"
-    echo "  Help & Exit: 44-45"
+    echo "  Cloud & Backup: 7-9"
+    echo "  Service Management: 10-17"
+    echo "  System Management: 18-21"
+    echo "  Backup & Restore: 22-34"
+    echo "  SSL & Security: 35-37"
+    echo "  Cron Management: 38-46"
+    echo "  Help & Exit: 47-48"
     echo ""
 }
 
@@ -283,13 +371,19 @@ execute_option() {
             7)
                 install_aws_cli
                 ;;
+            8)
+                verify_aws_credentials
+                ;;
+            9)
+                list_s3_backup_files
+                ;;
             
             # Service Management
-            8)
+            10)
                 log_info "Setting up localhost infrastructure (no browser warnings)"
                 setup_infrastructure "localhost"
                 ;;
-            9)
+            11)
                 # Use environment variables if available, otherwise prompt
                 if [ -z "${DOMAIN:-}" ]; then
                     read -p "Enter your domain (e.g., yourdomain.com): " domain
@@ -308,10 +402,10 @@ execute_option() {
                 log_info "Setting up production infrastructure with Let's Encrypt and Cloudflare DNS"
                 setup_infrastructure "production" "$domain" "$email"
                 ;;
-            10)
+            12)
                 deploy_individual_service
                 ;;
-            11)
+            13)
                 log_info "Starting all services"
                 docker compose up -d
                 if [ $? -eq 0 ]; then
@@ -321,133 +415,133 @@ execute_option() {
                     log_error "Failed to start services"
                 fi
                 ;;
-            12)
+            14)
                 log_info "Stopping all services"
                 docker compose down
                 log_success "All services stopped"
                 ;;
-            13)
+            15)
                 log_info "Restarting all services"
                 docker compose restart
                 log_success "All services restarted"
                 ;;
-            14)
+            16)
                 log_info "Checking service status"
                 docker compose ps
                 echo ""
                 echo "🔍 Service health checks:"
                 docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
                 ;;
-            15)
+            17)
                 log_info "Showing service logs"
                 docker compose logs -f
                 ;;
             
             # System Management
-            16)
+            18)
                 show_system_overview
                 ;;
-            17)
+            19)
                 show_memory_usage
                 ;;
-            18)
+            20)
                 show_cpu_usage
                 ;;
-            19)
+            21)
                 show_disk_usage
                 ;;
             
             # Backup & Restore
-            20)
+            22)
                 backup_all_databases
                 ;;
-            21)
+            23)
                 backup_mysql_only
                 ;;
-            22)
+            24)
                 backup_postgres_only
                 ;;
-            23)
+            25)
                 backup_redis_only
                 ;;
-            24)
+            26)
                 backup_clickhouse_only
                 ;;
-            25)
+            27)
                 restore_database
                 ;;
-            26)
+            28)
                 list_backups
                 ;;
-            27)
+            29)
                 setup_automated_backups
                 ;;
-            28)
+            30)
                 test_backup_system
                 ;;
-            29)
+            31)
                 show_backup_status
                 ;;
-            30)
+            32)
                 cleanup_old_backups
                 ;;
-            31)
+            33)
                 remove_automated_backups
                 ;;
-            32)
+            34)
                 setup_cleanup_cron
                 ;;
             
             # SSL & Security
-            33)
+            35)
                 setup_mkcert_ssl
                 ;;
-            34)
+            36)
                 check_ssl_certificates
                 ;;
-            35)
+            37)
                 show_firewall_status
                 ;;
             
             # Cron Management
-            36)
+            38)
                 list_all_cron_jobs
                 ;;
-            37)
+            39)
                 save_cron_jobs
                 ;;
-            38)
+            40)
                 restore_cron_jobs
                 ;;
-            39)
+            41)
                 remove_all_cron_jobs
                 ;;
-            40)
+            42)
                 remove_backup_cron_jobs
                 ;;
-            41)
+            43)
                 edit_cron_jobs_manually
                 ;;
-            42)
+            44)
                 view_cron_logs
                 ;;
-            43)
+            45)
                 remove_cron_logs
                 ;;
-            44)
+            46)
                 clean_old_cron_logs
                 ;;
             
             # Help & Exit
-            45)
+            47)
                 show_help
                 ;;
-            46)
+            48)
                 echo "👋 Goodbye!"
                 exit 0
                 ;;
             *)
-                echo "❌ Invalid choice. Please enter 1-46."
+                echo "❌ Invalid choice. Please enter 1-48."
                 ;;
         esac
 }
@@ -476,7 +570,7 @@ main() {
     else
         while true; do
             show_main_menu
-            read -p "Enter your choice (1-46): " choice
+            read -p "Enter your choice (1-48): " choice
             
             # Execute the chosen option
             execute_option "$choice"
