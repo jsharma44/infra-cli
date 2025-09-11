@@ -98,6 +98,11 @@ cleanup_s3_backups() {
     # Calculate cutoff date
     local cutoff_date=$(date -d "$retention_days days ago" +%Y-%m-%d 2>/dev/null || date -v-${retention_days}d +%Y-%m-%d 2>/dev/null)
     
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
+    
     # List all date directories in S3
     local s3_cmd="aws s3 ls s3://${S3_BUCKET_NAME}/backups/ --region ${S3_REGION}"
     if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
@@ -157,6 +162,11 @@ cleanup_s3_aggressive() {
     
     # Calculate cutoff date
     local cutoff_date=$(date -d "$retention_days days ago" +%Y-%m-%d 2>/dev/null || date -v-${retention_days}d +%Y-%m-%d 2>/dev/null)
+    
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
     
     # List all date directories in S3
     local s3_cmd="aws s3 ls s3://${S3_BUCKET_NAME}/backups/ --region ${S3_REGION}"

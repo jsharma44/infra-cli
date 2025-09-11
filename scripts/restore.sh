@@ -88,6 +88,11 @@ restore_database() {
             local s3_path="s3://${S3_BUCKET_NAME}/backups/$backup_date/$backup_file"
             local local_path="$BACKUP_LOCAL_DIR/$backup_file"
             
+            # Set AWS credentials from environment variables
+            export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+            export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+            export AWS_DEFAULT_REGION="${S3_REGION}"
+            
             if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
                 aws s3 cp "$s3_path" "$local_path" \
                     --region "${S3_REGION}" \
@@ -356,6 +361,12 @@ list_backups_for_database() {
     # List S3 backups if enabled
     if [ "$S3_BACKUP_ENABLED" = "true" ]; then
         echo "  ☁️  S3 Backups:"
+        
+        # Set AWS credentials from environment variables
+        export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+        export AWS_DEFAULT_REGION="${S3_REGION}"
+        
         if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
             # List all date directories and search for database backups
             aws s3 ls "s3://${S3_BUCKET_NAME}/backups/" --region "${S3_REGION}" --endpoint-url "${S3_ENDPOINT_URL}" | grep "PRE" | while read line; do

@@ -442,6 +442,11 @@ upload_backup_to_s3() {
     
     log_info "Uploading backup to S3: s3://${S3_BUCKET_NAME}/$s3_key"
     
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
+    
     if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
         aws s3 cp "$backup_file" "s3://${S3_BUCKET_NAME}/$s3_key" \
             --region "${S3_REGION}" \
@@ -486,6 +491,11 @@ upload_single_backup_to_s3() {
     fi
     
     log_info "Uploading $db_type backup to S3: s3://${S3_BUCKET_NAME}/$s3_key"
+    
+    # Set AWS credentials from environment variables
+    export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+    export AWS_DEFAULT_REGION="${S3_REGION}"
     
     if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
         aws s3 cp "$backup_file" "s3://${S3_BUCKET_NAME}/$s3_key" \
