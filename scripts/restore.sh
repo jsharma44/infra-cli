@@ -23,6 +23,29 @@ fi
 BACKUP_LOCAL_DIR="${BACKUP_LOCAL_DIR:-./backups}"
 
 # =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+# Format file size for display (cross-platform)
+format_file_size() {
+    local size="$1"
+    if command -v numfmt >/dev/null 2>&1; then
+        numfmt --to=iec "$size"
+    else
+        # Fallback for macOS and other systems without numfmt
+        if [ "$size" -gt 1073741824 ]; then
+            echo "$(($size / 1073741824))GB"
+        elif [ "$size" -gt 1048576 ]; then
+            echo "$(($size / 1048576))MB"
+        elif [ "$size" -gt 1024 ]; then
+            echo "$(($size / 1024))KB"
+        else
+            echo "${size}B"
+        fi
+    fi
+}
+
+# =============================================================================
 # RESTORE FUNCTIONS
 # =============================================================================
 
@@ -375,7 +398,7 @@ list_backups_for_database() {
                     local date=$(echo "$backup_line" | awk '{print $1" "$2}')
                     local size=$(echo "$backup_line" | awk '{print $3}')
                     local filename=$(echo "$backup_line" | awk '{print $4}')
-                    echo "  📄 $filename ($(numfmt --to=iec $size)) - $date [S3]"
+                    echo "  📄 $filename ($(format_file_size $size)) - $date [S3]"
                 done
             done
         else
@@ -386,7 +409,7 @@ list_backups_for_database() {
                     local date=$(echo "$backup_line" | awk '{print $1" "$2}')
                     local size=$(echo "$backup_line" | awk '{print $3}')
                     local filename=$(echo "$backup_line" | awk '{print $4}')
-                    echo "  📄 $filename ($(numfmt --to=iec $size)) - $date [S3]"
+                    echo "  📄 $filename ($(format_file_size $size)) - $date [S3]"
                 done
             done
         fi
