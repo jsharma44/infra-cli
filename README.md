@@ -217,82 +217,82 @@ The `infra.sh` script provides a comprehensive management interface:
 ./infra.sh
 ```
 
-**Available Options:**
+## Available Options
 
-**🐳 Docker Management:**
-1. 🐳 Install Docker
-2. 👤 Add Docker User
-3. 🔍 Check Docker User
-4. 🔍 Check Docker
-5. 📋 List Docker Services
-6. 🧹 Clean Everything Docker
+### 🐳 Docker Management
+- **1)** 🐳 Install Docker
+- **2)** 👤 Add Docker User
+- **3)** 🔍 Check Docker User
+- **4)** 🔍 Check Docker
+- **5)** 📋 List Docker Services
+- **6)** 🧹 Clean Everything (Volumes, Images, Containers, Networks)
 
-**☁️ Cloud & Backup:**
-7. ☁️ Install AWS CLI
-8. 🔐 Verify AWS Credentials
-9. 📁 List S3 Backup Files
+### ☁️ Cloud & Backup
+- **7)** ☁️ Install AWS CLI
+- **8)** 🔐 Verify AWS Credentials
+- **9)** 📁 List S3 Backup Files
 
-**📦 Service Management:**
-10. 🚀 Setup localhost infrastructure
-11. 🚀 Setup production infrastructure
-12. 🎯 Deploy individual service
-13. ▶️ Start All Services
-14. 🛑 Stop All Services
-15. 🔄 Restart All Services
-16. 📊 Check Service Status
-17. 📋 View Service Logs
+### 📦 Service Management
+- **10)** 🏠 Setup Localhost (No Browser Warnings)
+- **11)** 🌐 Setup Production (Let's Encrypt)
+- **12)** 🎯 Deploy Individual Service
+- **13)** ▶️ Start All Services
+- **14)** 🛑 Stop All Services
+- **15)** 🔄 Restart All Services
+- **16)** 📊 Check Service Status
+- **17)** 📋 View Service Logs
 
-**🔧 System Management:**
-18. 📊 System Overview
-19. 💾 Memory Usage
-20. 🖥️ CPU Usage
-21. 💿 Disk Usage
+### 🔧 System Management
+- **18)** 📊 System Overview
+- **19)** 💾 Memory Usage
+- **20)** 🖥️ CPU Usage
+- **21)** 💿 Disk Usage
 
-**🗄️ Backup & Restore:**
-22. 📊 Backup All Databases
-23. 🐘 Backup MySQL Only
-24. 🐘 Backup PostgreSQL Only
-25. 🔴 Backup Redis Only
-26. 📊 Backup ClickHouse Only
-27. 🔄 Restore Database
-28. 📋 List Available Backups
-29. ⏰ Setup Automated Backups (Cron)
-30. 🧪 Test Backup System
-31. 📊 Backup Status & Info
-32. 🧹 Cleanup Old Backups
-33. 🗑️ Remove Automated Backups
-34. ⏰ Setup Cleanup Cron (Local & S3)
+### 🗄️ Backup & Restore
+- **22)** 📊 Backup All Databases
+- **23)** 🐘 Backup MySQL Only
+- **24)** 🐘 Backup PostgreSQL Only
+- **25)** 🔴 Backup Redis Only
+- **26)** 📊 Backup ClickHouse Only
+- **27)** 🔄 Restore Database
+- **28)** 📋 List Available Backups
+- **29)** ⏰ Setup Automated Backups (Cron)
+- **30)** 🧪 Test Backup System
+- **31)** 📊 Backup Status & Info
+- **32)** 🧹 Cleanup Old Backups
+- **33)** 🗑️ Remove Automated Backups
+- **34)** ⏰ Setup Cleanup Cron (Local & S3)
 
-**🔐 SSL & Security:**
-35. 🔧 Setup mkcert SSL (No Browser Warnings)
-36. 🔍 Check SSL Certificates
-37. 🔥 Firewall Status
+### 🔐 SSL & Security
+- **35)** 🔧 Setup mkcert SSL (No Browser Warnings)
+- **36)** 🔍 Check SSL Certificates
+- **37)** 🔥 Firewall Status
 
-**⏰ Cron Management:**
-38. 📋 List All Cron Jobs
-39. 💾 Save Cron Jobs to File
-40. 📥 Restore Cron Jobs from File
-41. 🗑️ Remove All Cron Jobs
-42. 🧹 Remove Backup Cron Jobs Only
-43. 🔧 Edit Cron Jobs Manually
-44. 📄 View Cron Logs
-45. 🗑️ Remove Cron Logs
-46. 🧹 Clean Old Cron Logs
+### ⏰ Cron Management
+- **38)** 📋 List All Cron Jobs
+- **39)** 💾 Save Cron Jobs to File
+- **40)** 📥 Restore Cron Jobs from File
+- **41)** 🗑️ Remove All Cron Jobs
+- **42)** 🧹 Remove Backup Cron Jobs Only
+- **43)** 🔧 Edit Cron Jobs Manually
+- **44)** 📄 View Cron Logs
+- **45)** 🗑️ Remove Cron Logs
+- **46)** 🧹 Clean Old Cron Logs
 
-**🗄️  Database & User Management:**
-47. 🗄️  Database Management Menu
-48. 📋 List All Databases
-49. ➕ Create Database
-50. 🔄 Rename Database
-51. 🗑️  Delete Database
-52. 👥 List All Users
-53. ➕ Add User
-54. 🔑 Update User Password
-55. 🗑️  Delete User
+### 🗄️ Database & User Management
+- **47)** 🗄️ Database Management Menu
+- **48)** 📋 List All Databases
+- **49)** ➕ Create Database
+- **50)** 🔄 Rename Database
+- **51)** 🗑️ Delete Database
+- **52)** 👥 List All Users
+- **53)** ➕ Add User
+- **54)** 🔑 Update User Password
+- **55)** 🗑️ Delete User
 
-**❓ Help & Exit:**
-56. ❓ Help
-57. 🚪 Exit
+### ❓ Help & Exit
+- **56)** ❓ Help
+- **57)** 🚪 Exit
 
 ### Docker Compose Commands
 
