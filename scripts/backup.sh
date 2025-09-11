@@ -625,49 +625,51 @@ show_backup_status() {
     echo "  📦 Compression: $BACKUP_COMPRESSION"
 }
 
-# Command line argument handler
-if [ $# -gt 0 ]; then
-    case "$1" in
-        "backup_mysql_only")
-            backup_mysql_only
-            ;;
-        "backup_postgres_only")
-            backup_postgres_only
-            ;;
-        "backup_redis_only")
-            backup_redis_only
-            ;;
-        "backup_clickhouse_only")
-            backup_clickhouse_only
-            ;;
-        "backup_all_databases")
-            backup_all_databases
-            ;;
-        "list_backups")
-            list_backups
-            ;;
-        "test_backup_system")
-            test_backup_system
-            ;;
-        "show_backup_status")
-            show_backup_status
-            ;;
-        "cleanup_old_backups")
-            cleanup_old_backups
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo "Available commands:"
-            echo "  backup_mysql_only - Backup MySQL only"
-            echo "  backup_postgres_only - Backup PostgreSQL only"
-            echo "  backup_redis_only - Backup Redis only"
-            echo "  backup_clickhouse_only - Backup ClickHouse only"
-            echo "  backup_all_databases - Backup all databases"
-            echo "  list_backups - List all backups"
-            echo "  test_backup_system - Test backup system"
-            echo "  show_backup_status - Show backup status"
-            echo "  cleanup_old_backups - Clean old backups"
-            exit 1
-            ;;
-    esac
+# Command line argument handler (only when script is executed directly)
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            "backup_mysql_only")
+                backup_mysql_only
+                ;;
+            "backup_postgres_only")
+                backup_postgres_only
+                ;;
+            "backup_redis_only")
+                backup_redis_only
+                ;;
+            "backup_clickhouse_only")
+                backup_clickhouse_only
+                ;;
+            "backup_all_databases")
+                backup_all_databases
+                ;;
+            "list_backups")
+                list_backups
+                ;;
+            "test_backup_system")
+                test_backup_system
+                ;;
+            "show_backup_status")
+                show_backup_status
+                ;;
+            "cleanup_old_backups")
+                cleanup_old_backups
+                ;;
+            *)
+                echo "❌ Unknown command: $1"
+                echo "Available commands:"
+                echo "  backup_mysql_only - Backup MySQL only"
+                echo "  backup_postgres_only - Backup PostgreSQL only"
+                echo "  backup_redis_only - Backup Redis only"
+                echo "  backup_clickhouse_only - Backup ClickHouse only"
+                echo "  backup_all_databases - Backup all databases"
+                echo "  list_backups - List all backups"
+                echo "  test_backup_system - Test backup system"
+                echo "  show_backup_status - Show backup status"
+                echo "  cleanup_old_backups - Clean old backups"
+                exit 1
+                ;;
+        esac
+    fi
 fi

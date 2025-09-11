@@ -256,29 +256,31 @@ show_log_stats() {
     fi
 }
 
-# Command line argument handler
-if [ $# -gt 0 ]; then
-    case "$1" in
-        "view_cron_logs")
-            view_cron_logs
-            ;;
-        "view_all_logs")
-            view_all_logs
-            ;;
-        "clean_old_logs")
-            clean_old_logs
-            ;;
-        "show_log_stats")
-            show_log_stats
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo "Available commands:"
-            echo "  view_cron_logs - View cron log files"
-            echo "  view_all_logs - View all log files"
-            echo "  clean_old_logs - Clean old log files"
-            echo "  show_log_stats - Show log statistics"
-            exit 1
-            ;;
-    esac
+# Command line argument handler (only when script is executed directly)
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            "view_cron_logs")
+                view_cron_logs
+                ;;
+            "view_all_logs")
+                view_all_logs
+                ;;
+            "clean_old_logs")
+                clean_old_logs
+                ;;
+            "show_log_stats")
+                show_log_stats
+                ;;
+            *)
+                echo "❌ Unknown command: $1"
+                echo "Available commands:"
+                echo "  view_cron_logs - View cron log files"
+                echo "  view_all_logs - View all log files"
+                echo "  clean_old_logs - Clean old log files"
+                echo "  show_log_stats - Show log statistics"
+                exit 1
+                ;;
+        esac
+    fi
 fi

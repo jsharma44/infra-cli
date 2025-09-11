@@ -411,37 +411,39 @@ setup_cleanup_cron() {
     fi
 }
 
-# Command line argument handler
-if [ $# -gt 0 ]; then
-    case "$1" in
-        "list_cron")
-            list_all_cron_jobs
-            ;;
-        "save_cron")
-            save_cron_jobs
-            ;;
-        "restore_cron")
-            restore_cron_jobs
-            ;;
-        "edit_cron")
-            edit_cron_jobs_manually
-            ;;
-        "setup_automated_backups")
-            setup_automated_backups
-            ;;
-        "setup_cleanup_cron")
-            setup_cleanup_cron
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo "Available commands:"
-            echo "  list_cron - List all cron jobs"
-            echo "  save_cron - Save cron jobs to file"
-            echo "  restore_cron - Restore cron jobs from file"
-            echo "  edit_cron - Edit cron jobs manually"
-            echo "  setup_automated_backups - Setup automated backup cron"
-            echo "  setup_cleanup_cron - Setup automated cleanup cron"
-            exit 1
-            ;;
-    esac
+# Command line argument handler (only when script is executed directly)
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            "list_cron")
+                list_all_cron_jobs
+                ;;
+            "save_cron")
+                save_cron_jobs
+                ;;
+            "restore_cron")
+                restore_cron_jobs
+                ;;
+            "edit_cron")
+                edit_cron_jobs_manually
+                ;;
+            "setup_automated_backups")
+                setup_automated_backups
+                ;;
+            "setup_cleanup_cron")
+                setup_cleanup_cron
+                ;;
+            *)
+                echo "❌ Unknown command: $1"
+                echo "Available commands:"
+                echo "  list_cron - List all cron jobs"
+                echo "  save_cron - Save cron jobs to file"
+                echo "  restore_cron - Restore cron jobs from file"
+                echo "  edit_cron - Edit cron jobs manually"
+                echo "  setup_automated_backups - Setup automated backup cron"
+                echo "  setup_cleanup_cron - Setup automated cleanup cron"
+                exit 1
+                ;;
+        esac
+    fi
 fi

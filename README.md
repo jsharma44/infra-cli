@@ -279,9 +279,20 @@ The `infra.sh` script provides a comprehensive management interface:
 45. 🗑️ Remove Cron Logs
 46. 🧹 Clean Old Cron Logs
 
+**🗄️  Database & User Management:**
+47. 🗄️  Database Management Menu
+48. 📋 List All Databases
+49. ➕ Create Database
+50. 🔄 Rename Database
+51. 🗑️  Delete Database
+52. 👥 List All Users
+53. ➕ Add User
+54. 🔑 Update User Password
+55. 🗑️  Delete User
+
 **❓ Help & Exit:**
-47. ❓ Help
-48. 🚪 Exit
+56. ❓ Help
+57. 🚪 Exit
 
 ### Docker Compose Commands
 
@@ -351,6 +362,43 @@ The infrastructure includes comprehensive cloud backup management tools:
 - **☁️ Environment-based**: Uses credentials from `.env` file, not local AWS config
 - **🔍 Detailed Information**: Shows file sizes, dates, and folder structure
 - **🌐 Multi-endpoint Support**: Works with AWS S3 and custom S3-compatible endpoints
+
+### Database & User Management
+
+The infrastructure includes comprehensive database and user management tools for MySQL and PostgreSQL:
+
+```bash
+# Access database management menu
+./infra.sh
+# Choose option 47: Database Management Menu
+
+# Or run specific operations directly
+./infra.sh
+# Choose option 48: List All Databases
+# Choose option 49: Create Database
+# Choose option 52: List All Users
+# Choose option 53: Add User
+# etc.
+```
+
+**Database Operations:**
+- **📋 List All Databases**: View all databases in MySQL or PostgreSQL
+- **➕ Create Database**: Create new databases with proper permissions
+- **🔄 Rename Database**: Safely rename existing databases
+- **🗑️ Delete Database**: Remove databases with confirmation prompts
+
+**User Operations:**
+- **👥 List All Users**: View all database users and their permissions
+- **➕ Add User**: Create new database users with passwords
+- **🔑 Update User Password**: Change user passwords securely
+- **🗑️ Delete User**: Remove users with confirmation prompts
+
+**Features:**
+- **🔒 Security**: Hidden password prompts and confirmation for destructive operations
+- **🛡️ Validation**: Checks if database services are running before operations
+- **📊 User-friendly**: Clear prompts and detailed error messages
+- **🔄 Cross-platform**: Works on both macOS and Linux systems
+- **🎯 Database Support**: Full support for MySQL and PostgreSQL
 
 ### AWS CLI & S3 Backups
 
@@ -506,6 +554,7 @@ infra/
 │   ├── 🗑️ remove.sh            # Cleanup functions
 │   ├── ⏰ cron.sh              # Cron job management
 │   ├── 📝 logs.sh              # Logging functions
+│   ├── 🗄️ database.sh          # Database & user management
 │   └── 🚀 setup.sh             # Setup functions
 ├── 📁 ssl/                     # SSL certificates
 │   ├── 📁 mkcert/              # Localhost certificates
