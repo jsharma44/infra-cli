@@ -347,7 +347,7 @@ list_users() {
             done
             ;;
         "postgres")
-            execute_postgres "SELECT usename FROM pg_user WHERE usename != 'postgres';" | grep -v "usename" | while read user; do
+            execute_postgres "SELECT usename FROM pg_user WHERE usename != 'postgres';" | grep -v "usename\|^[[:space:]]*$\|^[[:space:]]*-" | grep -v "^[[:space:]]*(" | while read user; do
                 if [ -n "$user" ]; then
                     echo "  👤 $user"
                 fi
@@ -518,7 +518,11 @@ delete_user() {
             fi
             ;;
         "postgres")
-            if execute_postgres "DROP USER \"$username\";"; then
+            # First revoke all privileges, then drop the user
+            if execute_postgres "REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM \"$username\";" && \
+               execute_postgres "REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM \"$username\";" && \
+               execute_postgres "REVOKE ALL PRIVILEGES ON DATABASE postgres FROM \"$username\";" && \
+               execute_postgres "DROP USER \"$username\";"; then
                 log_success "User '$username' deleted successfully from PostgreSQL"
             else
                 log_error "Failed to delete user '$username' from PostgreSQL"
