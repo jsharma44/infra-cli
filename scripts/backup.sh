@@ -53,6 +53,16 @@ backup_mysql_only() {
     if docker ps | grep -q mysql; then
         log_info "Backing up MySQL database..."
         backup_mysql "$backup_dir" "$timestamp"
+        
+        # Upload to S3 if enabled
+        if [ "$S3_BACKUP_ENABLED" = "true" ]; then
+            log_info "Uploading MySQL backup to S3..."
+            local backup_file="$backup_dir/mysql_backup_$timestamp.sql"
+            if [ "$BACKUP_COMPRESSION" = "true" ]; then
+                backup_file="${backup_file}.gz"
+            fi
+            upload_single_backup_to_s3 "$backup_file" "$timestamp" "mysql"
+        fi
     else
         log_warning "MySQL container not running, skipping backup"
         return 0
@@ -74,6 +84,16 @@ backup_postgres_only() {
     if docker ps | grep -q postgres; then
         log_info "Backing up PostgreSQL database..."
         backup_postgres "$backup_dir" "$timestamp"
+        
+        # Upload to S3 if enabled
+        if [ "$S3_BACKUP_ENABLED" = "true" ]; then
+            log_info "Uploading PostgreSQL backup to S3..."
+            local backup_file="$backup_dir/postgres_backup_$timestamp.sql"
+            if [ "$BACKUP_COMPRESSION" = "true" ]; then
+                backup_file="${backup_file}.gz"
+            fi
+            upload_single_backup_to_s3 "$backup_file" "$timestamp" "postgres"
+        fi
     else
         log_warning "PostgreSQL container not running, skipping backup"
         return 0
@@ -95,6 +115,16 @@ backup_redis_only() {
     if docker ps | grep -q redis; then
         log_info "Backing up Redis database..."
         backup_redis "$backup_dir" "$timestamp"
+        
+        # Upload to S3 if enabled
+        if [ "$S3_BACKUP_ENABLED" = "true" ]; then
+            log_info "Uploading Redis backup to S3..."
+            local backup_file="$backup_dir/redis_backup_$timestamp.rdb"
+            if [ "$BACKUP_COMPRESSION" = "true" ]; then
+                backup_file="${backup_file}.gz"
+            fi
+            upload_single_backup_to_s3 "$backup_file" "$timestamp" "redis"
+        fi
     else
         log_warning "Redis container not running, skipping backup"
         return 0
@@ -426,6 +456,50 @@ upload_backup_to_s3() {
         # Keep local backup file for 30 days (redundancy and faster access)
     else
         log_error "Failed to upload backup to S3"
+        return 0
+    fi
+}
+
+# Upload single backup file to S3
+upload_single_backup_to_s3() {
+    local backup_file="$1"
+    local timestamp="$2"
+    local db_type="$3"
+    
+    if [ ! -f "$backup_file" ]; then
+        log_error "Backup file not found: $backup_file"
+        return 0
+    fi
+    
+    if ! command -v aws >/dev/null 2>&1; then
+        log_warning "AWS CLI not installed. Cannot upload to S3."
+        return 0
+    fi
+    
+    # Extract date from timestamp (YYYYMMDD_HHMMSS -> YYYY-MM-DD)
+    local backup_date=$(echo "$timestamp" | cut -d'_' -f1 | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+    local s3_key="backups/$backup_date/${db_type}_backup_$timestamp.sql"
+    
+    # Add .gz extension if compressed
+    if [ "$BACKUP_COMPRESSION" = "true" ]; then
+        s3_key="${s3_key}.gz"
+    fi
+    
+    log_info "Uploading $db_type backup to S3: s3://${S3_BUCKET_NAME}/$s3_key"
+    
+    if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
+        aws s3 cp "$backup_file" "s3://${S3_BUCKET_NAME}/$s3_key" \
+            --region "${S3_REGION}" \
+            --endpoint-url "${S3_ENDPOINT_URL}"
+    else
+        aws s3 cp "$backup_file" "s3://${S3_BUCKET_NAME}/$s3_key" \
+            --region "${S3_REGION}"
+    fi
+    
+    if [ $? -eq 0 ]; then
+        log_success "$db_type backup uploaded to S3 successfully"
+    else
+        log_error "Failed to upload $db_type backup to S3"
         return 0
     fi
 }
