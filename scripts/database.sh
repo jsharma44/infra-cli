@@ -62,7 +62,8 @@ check_database_service() {
 # Execute MySQL command
 execute_mysql() {
     local command="$1"
-    docker exec mysql mysql -u"$MYSQL_USER" -p"$MYSQL_ROOT_PASSWORD" -e "$command" 2>/dev/null
+    local user="${MYSQL_USER:-root}"
+    docker exec mysql mysql -u"$user" -p"$MYSQL_ROOT_PASSWORD" -e "$command" 2>/dev/null
 }
 
 # Execute PostgreSQL command
@@ -212,12 +213,28 @@ rename_database() {
     case "$db_type" in
         "mysql")
             # MySQL doesn't support direct rename, so we create new and drop old
-            if execute_mysql "CREATE DATABASE \`$new_name\`;" && \
-               execute_mysql "mysqldump \`$old_name\` | mysql \`$new_name\`;" && \
-               execute_mysql "DROP DATABASE \`$old_name\`;"; then
-                log_success "Database renamed from '$old_name' to '$new_name' in MySQL"
+            echo "Creating new database '$new_name'..."
+            if execute_mysql "CREATE DATABASE \`$new_name\`;"; then
+                echo "✅ New database '$new_name' created successfully"
+                echo "Dumping data from '$old_name' to '$new_name'..."
+                if docker exec mysql mysqldump -u"$MYSQL_USER" -p"$MYSQL_ROOT_PASSWORD" "$old_name" 2>/dev/null | docker exec -i mysql mysql -u"$MYSQL_USER" -p"$MYSQL_ROOT_PASSWORD" "$new_name" 2>/dev/null; then
+                    echo "✅ Data copied successfully from '$old_name' to '$new_name'"
+                    echo "Dropping old database '$old_name'..."
+                    if execute_mysql "DROP DATABASE \`$old_name\`;"; then
+                        echo "✅ Old database '$old_name' dropped successfully"
+                        log_success "Database renamed from '$old_name' to '$new_name' in MySQL"
+                    else
+                        log_error "Failed to drop old database '$old_name' in MySQL"
+                        echo "⚠️  Both databases exist: '$old_name' and '$new_name'"
+                    fi
+                else
+                    log_error "Failed to copy data from '$old_name' to '$new_name' in MySQL"
+                    echo "Cleaning up new database '$new_name'..."
+                    execute_mysql "DROP DATABASE \`$new_name\`;"
+                fi
             else
-                log_error "Failed to rename database in MySQL"
+                log_error "Failed to create new database '$new_name' in MySQL"
+                echo "Database '$new_name' may already exist"
             fi
             ;;
         "postgres")
