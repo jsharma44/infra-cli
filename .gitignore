@@ -1,0 +1,16 @@
+.env.*
+.env
+*.log
+*.gz
+
+.DS_Store
+.idea
+Caddyfile
+docker-compose.yml
+
+
+
+cron/*
+backups/*
+logs/*
+ssl/*
