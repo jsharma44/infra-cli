@@ -23,6 +23,29 @@ fi
 BACKUP_LOCAL_DIR="${BACKUP_LOCAL_DIR:-./backups}"
 
 # =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+# Format file size for display (cross-platform)
+format_file_size() {
+    local size="$1"
+    if command -v numfmt >/dev/null 2>&1; then
+        numfmt --to=iec "$size"
+    else
+        # Fallback for macOS and other systems without numfmt
+        if [ "$size" -gt 1073741824 ]; then
+            echo "$(($size / 1073741824))GB"
+        elif [ "$size" -gt 1048576 ]; then
+            echo "$(($size / 1048576))MB"
+        elif [ "$size" -gt 1024 ]; then
+            echo "$(($size / 1024))KB"
+        else
+            echo "${size}B"
+        fi
+    fi
+}
+
+# =============================================================================
 # RESTORE FUNCTIONS
 # =============================================================================
 
@@ -87,6 +110,11 @@ restore_database() {
             
             local s3_path="s3://${S3_BUCKET_NAME}/backups/$backup_date/$backup_file"
             local local_path="$BACKUP_LOCAL_DIR/$backup_file"
+            
+            # Set AWS credentials from environment variables
+            export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+            export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+            export AWS_DEFAULT_REGION="${S3_REGION}"
             
             if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
                 aws s3 cp "$s3_path" "$local_path" \
@@ -356,6 +384,12 @@ list_backups_for_database() {
     # List S3 backups if enabled
     if [ "$S3_BACKUP_ENABLED" = "true" ]; then
         echo "  ☁️  S3 Backups:"
+        
+        # Set AWS credentials from environment variables
+        export AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}"
+        export AWS_DEFAULT_REGION="${S3_REGION}"
+        
         if [ -n "${S3_ENDPOINT_URL}" ] && [ "${S3_ENDPOINT_URL}" != "https://s3.amazonaws.com" ]; then
             # List all date directories and search for database backups
             aws s3 ls "s3://${S3_BUCKET_NAME}/backups/" --region "${S3_REGION}" --endpoint-url "${S3_ENDPOINT_URL}" | grep "PRE" | while read line; do
@@ -364,7 +398,7 @@ list_backups_for_database() {
                     local date=$(echo "$backup_line" | awk '{print $1" "$2}')
                     local size=$(echo "$backup_line" | awk '{print $3}')
                     local filename=$(echo "$backup_line" | awk '{print $4}')
-                    echo "  📄 $filename ($(numfmt --to=iec $size)) - $date [S3]"
+                    echo "  📄 $filename ($(format_file_size $size)) - $date [S3]"
                 done
             done
         else
@@ -375,7 +409,7 @@ list_backups_for_database() {
                     local date=$(echo "$backup_line" | awk '{print $1" "$2}')
                     local size=$(echo "$backup_line" | awk '{print $3}')
                     local filename=$(echo "$backup_line" | awk '{print $4}')
-                    echo "  📄 $filename ($(numfmt --to=iec $size)) - $date [S3]"
+                    echo "  📄 $filename ($(format_file_size $size)) - $date [S3]"
                 done
             done
         fi

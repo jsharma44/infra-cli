@@ -90,13 +90,13 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_token
 #### Local Development
 ```bash
 ./infra.sh
-# Choose option 8: Setup localhost infrastructure
+# Choose option 10: Setup localhost infrastructure
 ```
 
 #### Production
 ```bash
 ./infra.sh
-# Choose option 9: Setup production infrastructure
+# Choose option 11: Setup production infrastructure
 ```
 
 ### 4. Access Services
@@ -175,7 +175,7 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_token
 ```bash
 # Setup localhost environment
 ./infra.sh
-# Choose option 7
+# Choose option 10: Setup localhost infrastructure
 
 # Start services
 docker compose up -d
@@ -189,7 +189,7 @@ docker compose ps
 ```bash
 # Setup production environment
 ./infra.sh
-# Choose option 8
+# Choose option 11: Setup production infrastructure
 
 # Deploy with your domain
 ./infra.sh
@@ -204,7 +204,7 @@ docker compose up -d
 ```bash
 # Deploy specific service
 ./infra.sh
-# Choose option 9: Deploy individual service
+# Choose option 12: Deploy individual service
 ```
 
 ## 🛠️ Management
@@ -218,52 +218,70 @@ The `infra.sh` script provides a comprehensive management interface:
 ```
 
 **Available Options:**
+
+**🐳 Docker Management:**
 1. 🐳 Install Docker
 2. 👤 Add Docker User
 3. 🔍 Check Docker User
 4. 🔍 Check Docker
 5. 📋 List Docker Services
 6. 🧹 Clean Everything Docker
+
+**☁️ Cloud & Backup:**
 7. ☁️ Install AWS CLI
-8. 🚀 Setup localhost infrastructure
-9. 🚀 Setup production infrastructure
-10. 🎯 Deploy individual service
-11. ▶️ Start All Services
-12. 🛑 Stop All Services
-13. 🔄 Restart All Services
-14. 📊 Check Service Status
-15. 📋 View Service Logs
-16. 📊 System Overview
-17. 💾 Memory Usage
-18. 🖥️ CPU Usage
-19. 💿 Disk Usage
-20. 📊 Backup All Databases
-21. 🐘 Backup MySQL Only
-22. 🐘 Backup PostgreSQL Only
-23. 🔴 Backup Redis Only
-24. 📊 Backup ClickHouse Only
-25. 🔄 Restore Database
-26. 📋 List Available Backups
-27. ⏰ Setup Automated Backups (Cron)
-28. 🧪 Test Backup System
-29. 📊 Backup Status & Info
-30. 🧹 Cleanup Old Backups
-31. 🗑️ Remove Automated Backups
-32. ⏰ Setup Cleanup Cron (Local & S3)
-33. 🔧 Setup mkcert SSL (No Browser Warnings)
-34. 🔍 Check SSL Certificates
-35. 🔥 Firewall Status
-36. 📋 List All Cron Jobs
-37. 💾 Save Cron Jobs to File
-38. 📥 Restore Cron Jobs from File
-39. 🗑️ Remove All Cron Jobs
-40. 🧹 Remove Backup Cron Jobs Only
-41. 🔧 Edit Cron Jobs Manually
-42. 📄 View Cron Logs
-43. 🗑️ Remove Cron Logs
-44. 🧹 Clean Old Cron Logs
-45. ❓ Help
-46. 🚪 Exit
+8. 🔐 Verify AWS Credentials
+9. 📁 List S3 Backup Files
+
+**📦 Service Management:**
+10. 🚀 Setup localhost infrastructure
+11. 🚀 Setup production infrastructure
+12. 🎯 Deploy individual service
+13. ▶️ Start All Services
+14. 🛑 Stop All Services
+15. 🔄 Restart All Services
+16. 📊 Check Service Status
+17. 📋 View Service Logs
+
+**🔧 System Management:**
+18. 📊 System Overview
+19. 💾 Memory Usage
+20. 🖥️ CPU Usage
+21. 💿 Disk Usage
+
+**🗄️ Backup & Restore:**
+22. 📊 Backup All Databases
+23. 🐘 Backup MySQL Only
+24. 🐘 Backup PostgreSQL Only
+25. 🔴 Backup Redis Only
+26. 📊 Backup ClickHouse Only
+27. 🔄 Restore Database
+28. 📋 List Available Backups
+29. ⏰ Setup Automated Backups (Cron)
+30. 🧪 Test Backup System
+31. 📊 Backup Status & Info
+32. 🧹 Cleanup Old Backups
+33. 🗑️ Remove Automated Backups
+34. ⏰ Setup Cleanup Cron (Local & S3)
+
+**🔐 SSL & Security:**
+35. 🔧 Setup mkcert SSL (No Browser Warnings)
+36. 🔍 Check SSL Certificates
+37. 🔥 Firewall Status
+
+**⏰ Cron Management:**
+38. 📋 List All Cron Jobs
+39. 💾 Save Cron Jobs to File
+40. 📥 Restore Cron Jobs from File
+41. 🗑️ Remove All Cron Jobs
+42. 🧹 Remove Backup Cron Jobs Only
+43. 🔧 Edit Cron Jobs Manually
+44. 📄 View Cron Logs
+45. 🗑️ Remove Cron Logs
+46. 🧹 Clean Old Cron Logs
+
+**❓ Help & Exit:**
+47. ❓ Help
+48. 🚪 Exit
 
 ### Docker Compose Commands
 
@@ -289,19 +307,19 @@ docker compose ps
 ```bash
 # Create backup
 ./infra.sh
-# Choose option 20: Backup All Databases
+# Choose option 22: Backup All Databases
 
 # Restore from backup
 ./infra.sh
-# Choose option 25: Restore Database
+# Choose option 27: Restore Database
 
 # Test backup system
 ./infra.sh
-# Choose option 28: Test Backup System
+# Choose option 30: Test Backup System
 
 # Setup automated backups
 ./infra.sh
-# Choose option 27: Setup Automated Backups (Cron)
+# Choose option 29: Setup Automated Backups (Cron)
 ```
 
 ### Enhanced Backup Features
@@ -312,6 +330,27 @@ docker compose ps
 - **🧹 Automatic Cleanup**: Old backups cleaned up automatically
 - **🔍 Backup Testing**: Built-in backup system testing
 - **📊 Backup Statistics**: Detailed backup status and information
+
+### Cloud & Backup Management
+
+The infrastructure includes comprehensive cloud backup management tools:
+
+```bash
+# Verify AWS credentials are working
+./infra.sh
+# Choose option 8: Verify AWS Credentials
+
+# List all backup files in S3
+./infra.sh
+# Choose option 9: List S3 Backup Files
+```
+
+**Features:**
+- **🔐 Credential Verification**: Test AWS credentials using `aws sts get-caller-identity`
+- **📁 S3 File Browser**: List all backup files and folders in your S3 bucket
+- **☁️ Environment-based**: Uses credentials from `.env` file, not local AWS config
+- **🔍 Detailed Information**: Shows file sizes, dates, and folder structure
+- **🌐 Multi-endpoint Support**: Works with AWS S3 and custom S3-compatible endpoints
 
 ### AWS CLI & S3 Backups
 
@@ -352,11 +391,11 @@ docker compose restart
 ```bash
 # Regenerate SSL certificates
 ./infra.sh
-# Choose option 15: Generate SSL certificates
+# Choose option 36: Check SSL Certificates
 
 # Setup mkcert for localhost
 ./infra.sh
-# Choose option 19: Setup mkcert SSL
+# Choose option 35: Setup mkcert SSL
 ```
 
 #### 3. Network Issues
@@ -394,17 +433,13 @@ aws --version
 ./infra.sh
 # Choose option 7: Install AWS CLI
 
-# Test AWS credentials
-aws sts get-caller-identity
+# Test AWS credentials using CLI
+./infra.sh
+# Choose option 8: Verify AWS Credentials
 
-# Test S3 access
-aws s3 ls s3://your-bucket-name
-
-# Check S3 backup configuration
-grep S3_ .env
-
-# Manual S3 backup test
-aws s3 cp test-file.txt s3://your-bucket-name/test/
+# List S3 backup files using CLI
+./infra.sh
+# Choose option 9: List S3 Backup Files
 ```
 
 #### 6. Platform Compatibility Issues
@@ -418,9 +453,6 @@ docker info | grep -E "(Architecture|Platform)"
 # Test platform detection
 source scripts/core.sh && detect_platform
 
-# Manual platform override (if needed)
-export CLOUDBEAVER_PLATFORM=linux/amd64  # For Ubuntu servers
-export CLOUDBEAVER_PLATFORM=linux/arm64  # For ARM systems
 
 # Rebuild CloudBeaver with correct platform
 docker compose up -d --force-recreate cloudbeaver
