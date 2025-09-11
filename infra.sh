@@ -28,6 +28,7 @@ source "$SCRIPT_DIR/scripts/restore.sh"
 source "$SCRIPT_DIR/scripts/remove.sh"
 source "$SCRIPT_DIR/scripts/cron.sh"
 source "$SCRIPT_DIR/scripts/logs.sh"
+source "$SCRIPT_DIR/scripts/database.sh"
 
 # Main CLI Interface
 show_main_menu() {
@@ -95,9 +96,20 @@ show_main_menu() {
     echo "45) 🗑️  Remove Cron Logs"
     echo "46) 🧹 Clean Old Cron Logs"
     echo ""
+    echo "🗄️  Database & User Management:"
+    echo "47) 🗄️  Database Management Menu"
+    echo "48) 📋 List All Databases"
+    echo "49) ➕ Create Database"
+    echo "50) 🔄 Rename Database"
+    echo "51) 🗑️  Delete Database"
+    echo "52) 👥 List All Users"
+    echo "53) ➕ Add User"
+    echo "54) 🔑 Update User Password"
+    echo "55) 🗑️  Delete User"
+    echo ""
     echo "❓ Help & Exit:"
-    echo "47) ❓ Help"
-    echo "48) 🚪 Exit"
+    echo "56) ❓ Help"
+    echo "57) 🚪 Exit"
     echo ""
 }
 
@@ -327,10 +339,16 @@ show_help() {
     echo "  • Check SSL certificates and security status"
     echo "  • Monitor firewall rules"
     echo ""
+    echo "🗄️  Database & User Management:"
+    echo "  • List, create, rename, and delete databases"
+    echo "  • Manage database users and permissions"
+    echo "  • Update user passwords and access controls"
+    echo "  • Support for MySQL and PostgreSQL"
+    echo ""
     echo "🚀 Quick Start:"
     echo "  1. ./infra.sh (run this script)"
-    echo "  2. Choose option 6 (Setup Localhost)"
-    echo "  3. Choose option 9 (Start All Services)"
+    echo "  2. Choose option 10 (Setup Localhost)"
+    echo "  3. Choose option 13 (Start All Services)"
     echo "  4. Access services via HTTPS!"
     echo ""
     echo "📋 All Available Options:"
@@ -341,7 +359,8 @@ show_help() {
     echo "  Backup & Restore: 22-34"
     echo "  SSL & Security: 35-37"
     echo "  Cron Management: 38-46"
-    echo "  Help & Exit: 47-48"
+    echo "  Database & User Management: 47-55"
+    echo "  Help & Exit: 56-57"
     echo ""
 }
 
@@ -532,16 +551,45 @@ execute_option() {
                 clean_old_cron_logs
                 ;;
             
-            # Help & Exit
+            # Database & User Management
             47)
-                show_help
+                database_management
                 ;;
             48)
+                list_databases
+                ;;
+            49)
+                create_database
+                ;;
+            50)
+                rename_database
+                ;;
+            51)
+                delete_database
+                ;;
+            52)
+                list_users
+                ;;
+            53)
+                add_user
+                ;;
+            54)
+                update_user_password
+                ;;
+            55)
+                delete_user
+                ;;
+            
+            # Help & Exit
+            56)
+                show_help
+                ;;
+            57)
                 echo "👋 Goodbye!"
                 exit 0
                 ;;
             *)
-                echo "❌ Invalid choice. Please enter 1-48."
+                echo "❌ Invalid choice. Please enter 1-57."
                 ;;
         esac
 }
@@ -557,6 +605,8 @@ main() {
                 ;;
             [0-9]*)
                 choice="$1"
+                # Execute the chosen option
+                execute_option "$choice"
                 ;;
             *)
                 echo "❌ Invalid argument: $1"
@@ -564,13 +614,10 @@ main() {
                 exit 1
                 ;;
         esac
-        
-        # Execute the chosen option
-        execute_option "$choice"
     else
         while true; do
             show_main_menu
-            read -p "Enter your choice (1-48): " choice
+            read -p "Enter your choice (1-57): " choice
             
             # Execute the chosen option
             execute_option "$choice"

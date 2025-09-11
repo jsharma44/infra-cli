@@ -416,37 +416,39 @@ list_backups_for_database() {
     fi
 }
 
-# Command line argument handler
-if [ $# -gt 0 ]; then
-    case "$1" in
-        "restore_database")
-            restore_database
-            ;;
-        "restore_mysql")
-            restore_mysql "$2"
-            ;;
-        "restore_postgres")
-            restore_postgres "$2"
-            ;;
-        "restore_redis")
-            restore_redis "$2"
-            ;;
-        "restore_clickhouse")
-            restore_clickhouse "$2"
-            ;;
-        "list_backups_for_database")
-            list_backups_for_database "$2"
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo "Available commands:"
-            echo "  restore_database - Interactive database restore"
-            echo "  restore_mysql <file> - Restore MySQL from file"
-            echo "  restore_postgres <file> - Restore PostgreSQL from file"
-            echo "  restore_redis <file> - Restore Redis from file"
-            echo "  restore_clickhouse <file> - Restore ClickHouse from file"
-            echo "  list_backups_for_database <db> - List backups for database"
-            exit 1
-            ;;
-    esac
+# Command line argument handler (only when script is executed directly)
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            "restore_database")
+                restore_database
+                ;;
+            "restore_mysql")
+                restore_mysql "$2"
+                ;;
+            "restore_postgres")
+                restore_postgres "$2"
+                ;;
+            "restore_redis")
+                restore_redis "$2"
+                ;;
+            "restore_clickhouse")
+                restore_clickhouse "$2"
+                ;;
+            "list_backups_for_database")
+                list_backups_for_database "$2"
+                ;;
+            *)
+                echo "❌ Unknown command: $1"
+                echo "Available commands:"
+                echo "  restore_database - Interactive database restore"
+                echo "  restore_mysql <file> - Restore MySQL from file"
+                echo "  restore_postgres <file> - Restore PostgreSQL from file"
+                echo "  restore_redis <file> - Restore Redis from file"
+                echo "  restore_clickhouse <file> - Restore ClickHouse from file"
+                echo "  list_backups_for_database <db> - List backups for database"
+                exit 1
+                ;;
+        esac
+    fi
 fi

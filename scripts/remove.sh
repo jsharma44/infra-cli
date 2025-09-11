@@ -530,57 +530,59 @@ clean_old_cron_logs() {
     fi
 }
 
-# Command line argument handler
-if [ $# -gt 0 ]; then
-    case "$1" in
-        "cleanup_old_backups")
-            cleanup_old_backups
-            ;;
-        "cleanup_local")
-            cleanup_local_backups
-            ;;
-        "cleanup_s3")
-            cleanup_s3_backups
-            ;;
-        "cleanup_both")
-            cleanup_both_backups
-            ;;
-        "cleanup_s3_aggressive")
-            cleanup_s3_aggressive
-            ;;
-        "cleanup_both_aggressive")
-            cleanup_both_aggressive
-            ;;
-        "remove_automated_backups")
-            remove_automated_backups
-            ;;
-        "remove_all_cron")
-            remove_all_cron_jobs
-            ;;
-        "remove_backup_cron")
-            remove_backup_cron_jobs
-            ;;
-        "remove_cron_logs")
-            remove_cron_logs
-            ;;
-        "clean_old_cron_logs")
-            clean_old_cron_logs
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo "Available commands:"
-            echo "  cleanup_old_backups - Clean old backups (30 days)"
-            echo "  cleanup_local - Clean local backups only"
-            echo "  cleanup_s3 - Clean S3 backups only"
-            echo "  cleanup_both - Clean both local and S3 backups"
-            echo "  cleanup_s3_aggressive - Aggressive S3 cleanup (7 days)"
-            echo "  cleanup_both_aggressive - Aggressive cleanup both (7 days)"
-            echo "  remove_automated_backups - Remove backup cron jobs"
-            echo "  remove_all_cron - Remove all cron jobs"
-            echo "  remove_backup_cron - Remove backup cron jobs only"
-            echo "  remove_cron_logs - Remove cron log files"
-            echo "  clean_old_cron_logs - Clean old cron log files"
-            exit 1
-            ;;
-    esac
+# Command line argument handler (only when script is executed directly)
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ $# -gt 0 ]; then
+        case "$1" in
+            "cleanup_old_backups")
+                cleanup_old_backups
+                ;;
+            "cleanup_local")
+                cleanup_local_backups
+                ;;
+            "cleanup_s3")
+                cleanup_s3_backups
+                ;;
+            "cleanup_both")
+                cleanup_both_backups
+                ;;
+            "cleanup_s3_aggressive")
+                cleanup_s3_aggressive
+                ;;
+            "cleanup_both_aggressive")
+                cleanup_both_aggressive
+                ;;
+            "remove_automated_backups")
+                remove_automated_backups
+                ;;
+            "remove_all_cron")
+                remove_all_cron_jobs
+                ;;
+            "remove_backup_cron")
+                remove_backup_cron_jobs
+                ;;
+            "remove_cron_logs")
+                remove_cron_logs
+                ;;
+            "clean_old_cron_logs")
+                clean_old_cron_logs
+                ;;
+            *)
+                echo "❌ Unknown command: $1"
+                echo "Available commands:"
+                echo "  cleanup_old_backups - Clean old backups (30 days)"
+                echo "  cleanup_local - Clean local backups only"
+                echo "  cleanup_s3 - Clean S3 backups only"
+                echo "  cleanup_both - Clean both local and S3 backups"
+                echo "  cleanup_s3_aggressive - Aggressive S3 cleanup (7 days)"
+                echo "  cleanup_both_aggressive - Aggressive cleanup both (7 days)"
+                echo "  remove_automated_backups - Remove backup cron jobs"
+                echo "  remove_all_cron - Remove all cron jobs"
+                echo "  remove_backup_cron - Remove backup cron jobs only"
+                echo "  remove_cron_logs - Remove cron log files"
+                echo "  clean_old_cron_logs - Clean old cron log files"
+                exit 1
+                ;;
+        esac
+    fi
 fi
