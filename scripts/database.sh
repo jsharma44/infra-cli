@@ -108,8 +108,8 @@ list_databases() {
             done
             ;;
         "postgres")
-            execute_postgres "SELECT datname FROM pg_database WHERE datistemplate = false;" | grep -v "datname\|postgres\|template" | while read db; do
-                if [ -n "$db" ]; then
+            execute_postgres "SELECT datname FROM pg_database WHERE datistemplate = false;" | grep -v "datname\|^[[:space:]]*$\|^[[:space:]]*-" | grep -v "^[[:space:]]*(" | while read db; do
+                if [ -n "$db" ] && [ "$db" != "postgres" ] || [ "$db" = "postgres" ]; then
                     echo "  📄 $db"
                 fi
             done
