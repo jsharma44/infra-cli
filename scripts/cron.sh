@@ -51,6 +51,30 @@ list_all_cron_jobs() {
                 description="⚡ Aggressive cleanup both (7 days)"
             elif echo "$job" | grep -q "backup.sh >> logs/backup_automated"; then
                 description="📊 Automated database backup"
+            elif echo "$job" | grep -q "source.*backup.sh.*&&.*backup_.*>> logs/backup_automated"; then
+                # Extract database information from the backup command
+                local db_commands=$(echo "$job" | grep -o 'backup_[^&]*' | tr '\n' ' ')
+                local db_count=$(echo "$db_commands" | wc -w)
+                
+                if [ "$db_count" -eq 1 ]; then
+                    # Single database
+                    case "$db_commands" in
+                        "backup_mysql_only ") description="📊 MySQL backup only" ;;
+                        "backup_postgres_only ") description="📊 PostgreSQL backup only" ;;
+                        "backup_redis_only ") description="📊 Redis backup only" ;;
+                        "backup_clickhouse_only ") description="📊 ClickHouse backup only" ;;
+                        "backup_all_databases ") description="📊 All databases backup" ;;
+                        *) description="📊 Custom database backup ($db_commands)" ;;
+                    esac
+                else
+                    # Multiple databases - create a summary
+                    local db_summary=""
+                    if echo "$db_commands" | grep -q "backup_mysql_only"; then db_summary="${db_summary}MySQL "; fi
+                    if echo "$db_commands" | grep -q "backup_postgres_only"; then db_summary="${db_summary}PostgreSQL "; fi
+                    if echo "$db_commands" | grep -q "backup_redis_only"; then db_summary="${db_summary}Redis "; fi
+                    if echo "$db_commands" | grep -q "backup_clickhouse_only"; then db_summary="${db_summary}ClickHouse "; fi
+                    description="📊 Multi-database backup ($(echo $db_summary | sed 's/ $//'))"
+                fi
             elif echo "$job" | grep -q "backup.sh >> logs/backup_cron"; then
                 description="📊 Database backup (legacy)"
             elif echo "$job" | grep -q "backup.sh"; then
@@ -82,12 +106,8 @@ list_all_cron_jobs() {
     done
 }
 
-# Save cron jobs to file
-save_cron_jobs() {
-    echo "💾 Save Cron Jobs to File"
-    echo "========================="
-    echo ""
-    
+# Helper function to save cron jobs silently (for internal use)
+_save_cron_jobs_silent() {
     local backup_dir="$SCRIPT_DIR/cron"
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     local backup_file="$backup_dir/crontab_$timestamp.txt"
@@ -99,17 +119,32 @@ save_cron_jobs() {
     local cron_jobs=$(crontab -l 2>/dev/null)
     
     if [ -z "$cron_jobs" ]; then
-        echo "❌ No cron jobs found to save"
-        return 0
+        return 1
     fi
     
     # Save to file
     echo "$cron_jobs" > "$backup_file"
     
     if [ $? -eq 0 ]; then
+        echo "$backup_file"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Save cron jobs to file
+save_cron_jobs() {
+    echo "💾 Save Cron Jobs to File"
+    echo "========================="
+    echo ""
+    
+    local backup_file=$(_save_cron_jobs_silent)
+    
+    if [ $? -eq 0 ] && [ -n "$backup_file" ]; then
         log_success "Cron jobs saved to: $backup_file"
         echo ""
-        echo "📁 Backup directory: $backup_dir"
+        echo "📁 Backup directory: $(dirname "$backup_file")"
         echo "📄 File: $(basename "$backup_file")"
         echo "📊 Size: $(du -h "$backup_file" | cut -f1)"
         echo ""
@@ -249,6 +284,57 @@ setup_automated_backups() {
     local script_dir="$SCRIPT_DIR"
     local backup_script="$script_dir/backup.sh"
     
+    echo "Choose databases to backup:"
+    echo "1) 🐘 MySQL only"
+    echo "2) 🐘 PostgreSQL only"
+    echo "3) 🔴 Redis only"
+    echo "4) 📊 ClickHouse only"
+    echo "5) 🐘 MySQL + PostgreSQL"
+    echo "6) 🐘 MySQL + PostgreSQL + Redis"
+    echo "7) 🐘 MySQL + PostgreSQL + Redis + ClickHouse (All)"
+    echo "8) Custom selection"
+    echo ""
+    
+    read -p "Choose databases (1-8): " db_choice
+    
+    local backup_command=""
+    case $db_choice in
+        1) backup_command="backup_mysql_only" ;;
+        2) backup_command="backup_postgres_only" ;;
+        3) backup_command="backup_redis_only" ;;
+        4) backup_command="backup_clickhouse_only" ;;
+        5) backup_command="backup_mysql_only && backup_postgres_only" ;;
+        6) backup_command="backup_mysql_only && backup_postgres_only && backup_redis_only" ;;
+        7) backup_command="backup_all_databases" ;;
+        8)
+            echo ""
+            echo "Select databases (comma-separated, e.g., 1,2,3):"
+            echo "1) MySQL"
+            echo "2) PostgreSQL" 
+            echo "3) Redis"
+            echo "4) ClickHouse"
+            echo ""
+            read -p "Enter selection: " custom_selection
+            
+            local custom_commands=()
+            IFS=',' read -ra selections <<< "$custom_selection"
+            for selection in "${selections[@]}"; do
+                case $selection in
+                    1) custom_commands+=("backup_mysql_only") ;;
+                    2) custom_commands+=("backup_postgres_only") ;;
+                    3) custom_commands+=("backup_redis_only") ;;
+                    4) custom_commands+=("backup_clickhouse_only") ;;
+                esac
+            done
+            backup_command=$(IFS=" && "; echo "${custom_commands[*]}")
+            ;;
+        *)
+            echo "❌ Invalid choice"
+            return 0
+            ;;
+    esac
+    
+    echo ""
     echo "Choose backup schedule:"
     echo "1) Daily at 2:00 AM"
     echo "2) Daily at 3:00 AM"
@@ -277,7 +363,7 @@ setup_automated_backups() {
     
     # Create cron job with descriptive log name
     local log_file="logs/backup_automated_$(date +%Y%m%d).log"
-    local cron_job="$cron_schedule $USER cd $script_dir && $backup_script >> $log_file 2>&1"
+    local cron_job="$cron_schedule $USER cd $script_dir && source $backup_script && $backup_command >> $log_file 2>&1"
     
     # Add to crontab
     echo "📝 Adding cron job..."
@@ -288,8 +374,24 @@ setup_automated_backups() {
         echo ""
         echo "📋 Cron job details:"
         echo "   Schedule: $cron_schedule"
+        echo "   Databases: $backup_command"
         echo "   Script: $backup_script"
         echo "   Log: $script_dir/$log_file"
+        echo ""
+        
+        # Automatically save cron jobs to file
+        echo "💾 Saving cron jobs to file..."
+        local backup_file=$(_save_cron_jobs_silent)
+        
+        if [ $? -eq 0 ] && [ -n "$backup_file" ]; then
+            log_success "Cron jobs saved to: $backup_file"
+            echo "📁 Backup directory: $(dirname "$backup_file")"
+            echo "📄 File: $(basename "$backup_file")"
+            echo "📊 Size: $(du -h "$backup_file" | cut -f1)"
+        else
+            log_error "Failed to save cron jobs to file"
+        fi
+        
         echo ""
         echo "🔍 To view cron jobs: crontab -l"
         echo "🗑️  To remove cron jobs: crontab -e"
