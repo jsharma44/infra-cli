@@ -6,30 +6,13 @@
 
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 
 # Load utility functions for logging
 if [ -f "$SCRIPT_DIR/scripts/core.sh" ]; then
     source "$SCRIPT_DIR/scripts/core.sh"
 fi
 
-# =============================================================================
-# DATABASE CONFIGURATION
-# =============================================================================
-
-# MySQL configuration
-MYSQL_HOST="${MYSQL_HOST:-mysql}"
-MYSQL_PORT="${MYSQL_PORT:-3306}"
-MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-}"
-MYSQL_USER="${MYSQL_USER:-root}"
-
-# PostgreSQL configuration
-POSTGRES_HOST="${POSTGRES_HOST:-postgres}"
-POSTGRES_PORT="${POSTGRES_PORT:-5432}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-POSTGRES_USER="${POSTGRES_USER:-postgres}"
 
 # =============================================================================
 # HELPER FUNCTIONS

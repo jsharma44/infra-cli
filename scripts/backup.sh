@@ -6,33 +6,12 @@
 
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 
 # Load utility functions for logging
 if [ -f "$SCRIPT_DIR/scripts/core.sh" ]; then
     source "$SCRIPT_DIR/scripts/core.sh"
 fi
-
-# =============================================================================
-# BACKUP CONFIGURATION
-# =============================================================================
-
-# Backup directory
-BACKUP_LOCAL_DIR="${BACKUP_LOCAL_DIR:-./backups}"
-
-# Backup compression
-BACKUP_COMPRESSION="${BACKUP_COMPRESSION:-true}"
-
-# Backup retention days
-BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
-
-# S3 configuration
-S3_BACKUP_ENABLED="${S3_BACKUP_ENABLED:-false}"
-S3_BUCKET_NAME="${S3_BUCKET_NAME:-}"
-S3_REGION="${S3_REGION:-us-east-1}"
-S3_ENDPOINT_URL="${S3_ENDPOINT_URL:-}"
 
 # =============================================================================
 # BACKUP FUNCTIONS

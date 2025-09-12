@@ -4,22 +4,9 @@
 # Essential utilities and infrastructure management functions
 # Consolidated from 12+ function files into one optimized module
 
-# Load environment variables with multi-line support
+# Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    # Source simple vars directly
-    set -a
-    source "$SCRIPT_DIR/.env"
-    set +a
-
-    # Convert multi-line WSTEP variables and add proper indentation for YAML
-    if [ -n "${FLEET_MDM_WINDOWS_WSTEP_IDENTITY_CERT_BYTES:-}" ]; then
-        FLEET_MDM_WINDOWS_WSTEP_IDENTITY_CERT_BYTES=$(printf '%s\n' "${FLEET_MDM_WINDOWS_WSTEP_IDENTITY_CERT_BYTES}" | sed 's/\\n/\n/g' | sed '/^[[:space:]]*$/d' | sed '1!s/^/        /')
-    fi
-    if [ -n "${FLEET_MDM_WINDOWS_WSTEP_IDENTITY_KEY_BYTES:-}" ]; then
-        FLEET_MDM_WINDOWS_WSTEP_IDENTITY_KEY_BYTES=$(printf '%s\n' "${FLEET_MDM_WINDOWS_WSTEP_IDENTITY_KEY_BYTES}" | sed 's/\\n/\n/g' | sed '/^[[:space:]]*$/d' | sed '1!s/^/        /')
-    fi
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 
 # =============================================================================
 # UTILITY FUNCTIONS
@@ -192,8 +179,7 @@ add_docker_user() {
     echo "===================="
     echo ""
     
-    DOCKER_USER=${DOCKER_USER:-"dockeruser"}
-    USER_PASSWORD=${USER_PASSWORD:-""}
+    # DOCKER_USER and USER_PASSWORD loaded from env.sh
     
     # Check if user already exists
     if id "$DOCKER_USER" >/dev/null 2>&1; then
@@ -235,7 +221,7 @@ check_docker_user() {
     echo "==================="
     echo ""
     
-    DOCKER_USER=${DOCKER_USER:-"dockeruser"}
+    # DOCKER_USER loaded from env.sh
     
     if id "$DOCKER_USER" >/dev/null 2>&1; then
         echo "✅ User $DOCKER_USER exists"
@@ -658,7 +644,7 @@ detect_platform() {
 
 # Setup infrastructure
 setup_infrastructure() {
-    local environment="${1:-localhost}"
+    local environment="${1:-local}"
     local domain="${2:-}"
     local email="${3:-}"
     
@@ -679,7 +665,7 @@ setup_infrastructure() {
     generate_docker_compose "$environment"
     
     # 3. Generate SSL certificates if needed
-    if [ "$environment" = "localhost" ]; then
+    if [ "$environment" = "local" ]; then
         # For localhost, always ensure mkcert certificates exist
         if [ ! -f "ssl/mkcert/localhost.pem" ] || [ ! -f "ssl/mkcert/localhost-key.pem" ]; then
             log_info "Setting up mkcert SSL certificates for localhost..."
@@ -722,14 +708,14 @@ setup_infrastructure() {
 
 # Generate Caddyfile
 generate_caddyfile() {
-    local environment="${1:-localhost}"
+    local environment="${1:-local}"
     local domain="${2:-}"
     local email="${3:-}"
     
     log_info "Generating Caddyfile for environment: $environment"
     
     case "$environment" in
-        "localhost")
+        "local")
             generate_localhost_caddyfile
             ;;
         "production")
@@ -902,7 +888,7 @@ EOF
 
 # Generate Docker Compose
 generate_docker_compose() {
-    local environment="${1:-localhost}"
+    local environment="${1:-local}"
     local output_file="docker-compose.yml"
     
     log_info "Generating Docker Compose for environment: $environment"
@@ -1055,7 +1041,7 @@ services:
     command: ["fleet", "prepare", "db"]
     restart: "no"
     networks:
-      - \${DOCKER_NETWORK:-my-network}
+      - ${DOCKER_NETWORK:-my-network}
 
   # Fleet server
   fleet:
@@ -1106,17 +1092,26 @@ services:
 
 volumes:
   caddy_data:
+    name: caddy_data
   caddy_config:
+    name: caddy_config
   cloudbeaver_data:
+    name: cloudbeaver_data
   tinybird_clickhouse_data:
+    name: tinybird_clickhouse_data
   tinybird_redis_data:
+    name: tinybird_redis_data
   mysql_data:
+    name: mysql_data
   postgres_data:
+    name: postgres_data
   redis_data:
+    name: redis_data
 
 networks:
   ${DOCKER_NETWORK:-my-network}:
-    driver: bridge
+    name: ${DOCKER_NETWORK:-my-network}
+    external: true
 EOF
     
     log_success "Docker Compose generated: $output_file"

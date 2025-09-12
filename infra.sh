@@ -7,15 +7,7 @@
 set -e
 
 # Load environment variables
-if [ -f .env ]; then
-    set -a
-    source .env
-    set +a
-fi
-
-# Set defaults
-BACKUP_LOCAL_DIR=${BACKUP_LOCAL_DIR:-./backups}
-DOCKER_NETWORK=${DOCKER_NETWORK:-my-network}
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/env.sh"
 
 # Source core modules
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,7 +42,7 @@ show_main_menu() {
     echo "9)  📁 List S3 Backup Files"
     echo ""
     echo "📦 Service Management:"
-    echo "10) 🏠 Setup Localhost (No Browser Warnings)"
+    echo "10) 🏠 Setup Localhost"
     echo "11) 🌐 Setup Production (Let's Encrypt)"
     echo "12) 🎯 Deploy Individual Service"
     echo "13) ▶️  Start All Services"
@@ -81,7 +73,7 @@ show_main_menu() {
     echo "34) ⏰ Setup Cleanup Cron (Local & S3)"
     echo ""
     echo "🔐 SSL & Security:"
-    echo "35) 🔧 Setup mkcert SSL (No Browser Warnings)"
+    echo "35) 🔧 Setup mkcert SSL"
     echo "36) 🔍 Check SSL Certificates"
     echo "37) 🔥 Firewall Status"
     echo ""
@@ -120,14 +112,13 @@ deploy_individual_service() {
     echo "============================"
     echo ""
     echo "Choose environment:"
-    echo "1) 🏠 Localhost (No Browser Warnings)"
-    echo "2) 🌐 Production (Let's Encrypt)"
-    echo "3) 🔧 Development (Environment Variables)"
+    echo "1) 🏠 Localhost"
+    echo "2) 🌐 Production"
     echo ""
-    read -p "Enter environment choice (1-3): " env_choice
+    read -p "Enter environment choice (1-2): " env_choice
     
     case $env_choice in
-        1) local environment="localhost" ;;
+        1) local environment="local" ;;
         2) 
             # Use environment variables if available, otherwise prompt
             if [ -z "${DOMAIN:-}" ]; then
@@ -145,7 +136,6 @@ deploy_individual_service() {
             fi
             local environment="production"
             ;;
-        3) local environment="development" ;;
         *) echo "❌ Invalid choice"; return 1 ;;
     esac
     
@@ -157,8 +147,9 @@ deploy_individual_service() {
     echo "4) 🐘 MySQL (Database)"
     echo "5) 🐘 PostgreSQL (Database)"
     echo "6) 🔴 Redis (Cache)"
+    echo "7) 🌐 Caddy (Reverse Proxy & SSL)"
     echo ""
-    read -p "Enter service choice (1-6): " service_choice
+    read -p "Enter service choice (1-7): " service_choice
     
     case $service_choice in
         1) local service="cloudbeaver" ;;
@@ -167,6 +158,7 @@ deploy_individual_service() {
         4) local service="mysql" ;;
         5) local service="postgres" ;;
         6) local service="redis" ;;
+        7) local service="caddy" ;;
         *) echo "❌ Invalid choice"; return 1 ;;
     esac
     

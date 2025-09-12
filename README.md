@@ -60,6 +60,14 @@ cp env.example .env
 
 ### 2. Configure Environment
 
+The infrastructure uses a centralized environment management system with `env.sh`:
+
+- **🔧 Centralized Loading**: All environment variables loaded from `scripts/env.sh`
+- **🔄 No Circular Dependencies**: Smart loading prevents dependency loops
+- **📤 Automatic Export**: Variables automatically exported for child processes
+- **🛡️ Multi-line Support**: Handles complex variables like SSL certificates
+- **🎯 Consistent Access**: All scripts use the same environment source
+
 Edit `.env` file with your settings:
 
 ```bash
@@ -107,6 +115,40 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_token
 - **Health Check**: https://localhost:8080/health
 
 ## ⚙️ Configuration
+
+### Environment Management
+
+The infrastructure uses a centralized environment management system:
+
+#### **Centralized Loading (`scripts/env.sh`)**
+- **🔧 Single Source**: All environment variables loaded from one file
+- **🔄 Smart Loading**: Prevents circular dependencies between scripts
+- **📤 Auto Export**: Variables automatically exported for child processes
+- **🛡️ Multi-line Support**: Handles complex variables like SSL certificates
+- **🎯 Consistent Access**: All scripts use the same environment source
+
+#### **Environment File Structure**
+```bash
+# .env file contains all configuration
+EMAIL=your-email@domain.com
+DOMAIN=yourdomain.com
+DEPLOYMENT_ENV=local  # or 'production'
+
+# Database passwords
+MYSQL_ROOT_PASSWORD=your_secure_password
+POSTGRES_PASSWORD=your_secure_password
+REDIS_PASSWORD=your_secure_password
+
+# SSL configuration
+SSL_COUNTRY=US
+SSL_STATE=California
+SSL_CITY=San Francisco
+
+# Multi-line variables (SSL certificates)
+FLEET_MDM_WINDOWS_WSTEP_IDENTITY_CERT_BYTES="-----BEGIN CERTIFICATE-----
+MIIF...your certificate...
+-----END CERTIFICATE-----"
+```
 
 ### Environment Variables
 
@@ -201,11 +243,30 @@ docker compose up -d
 
 ### Individual Service Deployment
 
+Deploy specific services with environment selection:
+
 ```bash
 # Deploy specific service
 ./infra.sh
 # Choose option 12: Deploy individual service
+# Choose environment:
+# 1) 🏠 Localhost
+# 2) 🌐 Production
+# Choose service to deploy:
+# 1) 🗄️ CloudBeaver (Database Management)
+# 2) 🚀 Fleet (Device Management)
+# 3) 📊 Tinybird (Analytics)
+# 4) 🐘 MySQL (Database)
+# 5) 🐘 PostgreSQL (Database)
+# 6) 🔴 Redis (Cache)
+# 7) 🌐 Caddy (Reverse Proxy & SSL)
 ```
+
+**Features:**
+- **🎯 Service Selection**: Deploy only the services you need
+- **🌍 Environment Support**: Choose between localhost and production
+- **🔧 Individual Management**: Start, stop, or restart specific services
+- **⚡ Quick Deployment**: Deploy services without full infrastructure setup
 
 ## 🛠️ Management
 
@@ -233,7 +294,7 @@ The `infra.sh` script provides a comprehensive management interface:
 - **9)** 📁 List S3 Backup Files
 
 ### 📦 Service Management
-- **10)** 🏠 Setup Localhost (No Browser Warnings)
+- **10)** 🏠 Setup Localhost
 - **11)** 🌐 Setup Production (Let's Encrypt)
 - **12)** 🎯 Deploy Individual Service
 - **13)** ▶️ Start All Services
@@ -256,7 +317,7 @@ The `infra.sh` script provides a comprehensive management interface:
 - **26)** 📊 Backup ClickHouse Only
 - **27)** 🔄 Restore Database
 - **28)** 📋 List Available Backups
-- **29)** ⏰ Setup Automated Backups (Cron)
+- **29)** ⏰ Setup Automated Backups (Cron) - **Enhanced with Database Selection**
 - **30)** 🧪 Test Backup System
 - **31)** 📊 Backup Status & Info
 - **32)** 🧹 Cleanup Old Backups
@@ -264,7 +325,7 @@ The `infra.sh` script provides a comprehensive management interface:
 - **34)** ⏰ Setup Cleanup Cron (Local & S3)
 
 ### 🔐 SSL & Security
-- **35)** 🔧 Setup mkcert SSL (No Browser Warnings)
+- **35)** 🔧 Setup mkcert SSL
 - **36)** 🔍 Check SSL Certificates
 - **37)** 🔥 Firewall Status
 
@@ -313,6 +374,40 @@ docker compose restart fleet
 docker compose ps
 ```
 
+### Docker Network & Volume Management
+
+The infrastructure uses optimized Docker networking and volume management:
+
+#### **Absolute Naming**
+- **📁 Named Volumes**: All volumes use absolute names (e.g., `caddy_data`, `mysql_data`)
+- **🌐 Named Networks**: Networks use absolute names (e.g., `azodik`)
+- **🔗 External Networks**: Networks marked as `external: true` to prevent conflicts
+- **⚡ No Prefixing**: Docker doesn't add directory prefixes to volume/network names
+
+#### **Volume Structure**
+```yaml
+volumes:
+  caddy_data:
+    name: caddy_data
+  mysql_data:
+    name: mysql_data
+  postgres_data:
+    name: postgres_data
+  redis_data:
+    name: redis_data
+
+networks:
+  azodik:
+    name: azodik
+    external: true
+```
+
+#### **Benefits**
+- **🔧 Easy Management**: Clear, predictable volume and network names
+- **🔄 Portability**: Volumes work across different Docker contexts
+- **🛡️ Conflict Prevention**: External networks prevent creation conflicts
+- **📊 Better Monitoring**: Clear naming for monitoring and debugging
+
 ### Backup & Restore
 
 ```bash
@@ -333,6 +428,33 @@ docker compose ps
 # Choose option 29: Setup Automated Backups (Cron)
 ```
 
+### Enhanced Automated Backup System
+
+The automated backup system now includes advanced database selection and management features:
+
+```bash
+# Setup automated backups with database selection
+./infra.sh
+# Choose option 29: Setup Automated Backups (Cron)
+# Choose databases to backup:
+# 1) 🐘 MySQL only
+# 2) 🐘 PostgreSQL only  
+# 3) 🔴 Redis only
+# 4) 📊 ClickHouse only
+# 5) 🐘 MySQL + PostgreSQL
+# 6) 🐘 MySQL + PostgreSQL + Redis
+# 7) 🐘 MySQL + PostgreSQL + Redis + ClickHouse (All)
+# 8) Custom selection
+```
+
+**Key Features:**
+- **🎯 Database Selection**: Choose exactly which databases to backup
+- **⚡ Performance Optimized**: Skip ClickHouse for faster backups
+- **📁 Automatic File Saving**: Cron jobs saved to `cron/` directory
+- **📝 Enhanced Descriptions**: Clear descriptions showing selected databases
+- **🔄 Custom Combinations**: Mix and match any database combination
+- **⏰ Flexible Scheduling**: Daily, twice daily, weekly, or custom schedules
+
 ### Enhanced Backup Features
 
 - **🔄 Automatic S3 Upload**: Backups automatically uploaded to S3 when enabled
@@ -341,6 +463,9 @@ docker compose ps
 - **🧹 Automatic Cleanup**: Old backups cleaned up automatically
 - **🔍 Backup Testing**: Built-in backup system testing
 - **📊 Backup Statistics**: Detailed backup status and information
+- **🎯 Database Selection**: Choose which databases to backup (exclude ClickHouse for faster backups)
+- **📁 Automatic File Saving**: Cron jobs automatically saved to filesystem
+- **📝 Enhanced Descriptions**: Detailed cron job descriptions showing selected databases
 
 ### Cloud & Backup Management
 
@@ -501,9 +626,52 @@ docker info | grep -E "(Architecture|Platform)"
 # Test platform detection
 source scripts/core.sh && detect_platform
 
-
 # Rebuild CloudBeaver with correct platform
 docker compose up -d --force-recreate cloudbeaver
+```
+
+#### 7. Environment Variable Issues
+```bash
+# Check if env.sh is loading correctly
+source scripts/env.sh && echo "Environment loaded successfully"
+
+# Test specific variables
+source scripts/env.sh && echo "DOMAIN: $DOMAIN"
+source scripts/env.sh && echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
+
+# Check for circular dependencies
+source scripts/env.sh && echo "ENV_LOADED: $ENV_LOADED"
+```
+
+#### 8. Cron Job Issues
+```bash
+# Check if cron jobs are saved to files
+ls -la cron/
+
+# View saved cron job files
+cat cron/crontab_*.txt
+
+# Check cron job descriptions
+./infra.sh
+# Choose option 38: List All Cron Jobs
+
+# Test cron job execution
+source scripts/backup.sh && backup_mysql_only
+```
+
+#### 9. Docker Network Issues
+```bash
+# Check for network conflicts
+docker network ls | grep azodik
+
+# Remove conflicting networks
+docker network rm azodik
+
+# Recreate network
+docker network create azodik
+
+# Check volume names
+docker volume ls | grep -E "(caddy_data|mysql_data|postgres_data|redis_data)"
 ```
 
 ### Logs
@@ -555,13 +723,24 @@ infra/
 │   ├── ⏰ cron.sh              # Cron job management
 │   ├── 📝 logs.sh              # Logging functions
 │   ├── 🗄️ database.sh          # Database & user management
-│   └── 🚀 setup.sh             # Setup functions
+│   ├── 🚀 setup.sh             # Setup functions
+│   └── 🔧 env.sh               # Centralized environment loader
 ├── 📁 ssl/                     # SSL certificates
 │   ├── 📁 mkcert/              # Localhost certificates
 │   ├── 📁 localhost-ca/        # Localhost CA
 │   ├── 📁 mysql/               # MySQL SSL certificates
 │   ├── 📁 postgres/            # PostgreSQL SSL certificates
 │   └── 📁 redis/               # Redis SSL certificates
+├── 📁 cron/                    # Cron job backups
+│   └── 📄 crontab_*.txt        # Saved cron job files
+├── 📁 backups/                 # Database backups
+│   ├── 📁 YYYY-MM-DD/          # Date-organized backups
+│   │   ├── 📄 mysql_backup_YYYYMMDD_HHMMSS.sql.gz
+│   │   ├── 📄 postgres_backup_YYYYMMDD_HHMMSS.sql.gz
+│   │   ├── 📄 redis_backup_YYYYMMDD_HHMMSS.rdb.gz
+│   │   └── 📄 clickhouse_backup_YYYYMMDD_HHMMSS.sql.gz
+│   ├── 📄 dump.sql             # Legacy database dumps
+│   └── 📄 backup-restore.sql   # Restore scripts
 └── 📁 logs/                    # Application logs
     └── 📄 infrastructure_*.log # Infrastructure logs
 ```
