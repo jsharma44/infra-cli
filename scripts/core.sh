@@ -1041,7 +1041,7 @@ services:
     command: ["fleet", "prepare", "db"]
     restart: "no"
     networks:
-      - \${DOCKER_NETWORK:-my-network}
+      - ${DOCKER_NETWORK:-my-network}
 
   # Fleet server
   fleet:
@@ -1111,7 +1111,7 @@ volumes:
 networks:
   ${DOCKER_NETWORK:-my-network}:
     name: ${DOCKER_NETWORK:-my-network}
-    driver: bridge
+    external: true
 EOF
     
     log_success "Docker Compose generated: $output_file"
