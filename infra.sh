@@ -7,15 +7,7 @@
 set -e
 
 # Load environment variables
-if [ -f .env ]; then
-    set -a
-    source .env
-    set +a
-fi
-
-# Set defaults
-BACKUP_LOCAL_DIR=${BACKUP_LOCAL_DIR:-./backups}
-DOCKER_NETWORK=${DOCKER_NETWORK:-my-network}
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/env.sh"
 
 # Source core modules
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

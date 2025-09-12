@@ -6,9 +6,7 @@
 
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 
 # =============================================================================
 # SSL MANAGEMENT FUNCTIONS

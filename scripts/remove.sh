@@ -6,21 +6,13 @@
 
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 
 # Load utility functions for logging
 if [ -f "$SCRIPT_DIR/scripts/core.sh" ]; then
     source "$SCRIPT_DIR/scripts/core.sh"
 fi
 
-# =============================================================================
-# REMOVAL CONFIGURATION
-# =============================================================================
-
-# Backup directory
-BACKUP_LOCAL_DIR="${BACKUP_LOCAL_DIR:-./backups}"
 
 # =============================================================================
 # BACKUP CLEANUP FUNCTIONS

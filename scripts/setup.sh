@@ -8,15 +8,13 @@ set -e
 
 # Load environment variables and core functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
-fi
+source "$SCRIPT_DIR/scripts/env.sh"
 source "$SCRIPT_DIR/scripts/core.sh"
 
-# Default values
-ENVIRONMENT="localhost"
-DOMAIN=""
-EMAIL=""
+# Default values (using env.sh variables)
+ENVIRONMENT="${DEPLOYMENT_ENV:-local}"
+DOMAIN="${DOMAIN:-}"
+EMAIL="${EMAIL:-}"
 ACTION="setup"
 
 # Show help
@@ -27,7 +25,7 @@ show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  -e, --environment    Environment: localhost, production, development (default: localhost)"
+    echo "  -e, --environment    Environment: local, production, development (default: local)"
     echo "  -d, --domain         Domain for production (e.g., yourdomain.com)"
     echo "  -m, --email          Email for Let's Encrypt (e.g., admin@yourdomain.com)"
     echo "  -a, --action         Action: setup, start, stop, restart, status, logs (default: setup)"
@@ -95,7 +93,7 @@ case "$ACTION" in
             log_success "All services started successfully!"
             echo ""
             echo "🌐 Access your services:"
-            if [ "$ENVIRONMENT" = "localhost" ]; then
+            if [ "$ENVIRONMENT" = "local" ]; then
                 echo "   • CloudBeaver: https://cloudbeaver.localhost"
                 echo "   • Fleet: https://fleet.localhost"
                 echo "   • Tinybird: https://tinybird.localhost"
